@@ -1,23 +1,25 @@
-const express = require("express");
-const cors = require("cors");
-var bodyParser = require("body-parser");
-const fetch = require("node-fetch");
-const path = require("path");
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+var bodyParser = require('body-parser');
+const fetch = require('node-fetch');
+const path = require('path');
 const app = express();
-const db = require("./db/db");
-const moment = require("moment");
+const db = require('./db/db');
+const moment = require('moment');
 
-const uiPORT = "8080";
+const uiPORT = '8080';
 //configure
 const corsOptions = {
   origin: `http://localhost:${uiPORT}`,
 };
-app.use(express.static(path.join(__dirname, "../dist")));
+app.use(express.static(path.join(__dirname, '../dist')));
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use((err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
-  err.status = err.status || "error";
+  err.status = err.status || 'error';
 
   res.status(err.statusCode).json({
     status: err.status,
@@ -31,60 +33,42 @@ app.listen(PORT, () => {
   console.log(`Node.js app is listening at http://localhost:${PORT}`);
 });
 
-const clientID = "54287";
-const clientSecret = "edee55f0ee48c484314874c9b18a33b5e4a135bf";
-let accessToken = "";
+const clientID = '54287';
+const clientSecret = 'edee55f0ee48c484314874c9b18a33b5e4a135bf';
+let accessToken = '';
 
-app.get("/api/exchange_token", (req, res) => {
+app.get('/api/exchange_token', (req, res) => {
   const token = req.query.code;
   fetch(
     `https://www.strava.com/api/v3/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&code=${token}&grant_type=authorization_code`,
     {
-      method: "POST",
+      method: 'POST',
       headers: {
-        accept: "application/json",
+        accept: 'application/json',
       },
     }
   )
     .then((response) => response.json())
     .then((athleteStrava) => {
-      console.log("accesstoken====", athleteStrava);
-      athleteStrava.athlete.access_token = athleteStrava.access_token;
+      console.log('accesstoken====', athleteStrava);
+      accessToken = athleteStrava.athlete.access_token = athleteStrava.access_token;
       athleteStrava.athlete.expires_at = athleteStrava.expires_at;
       athleteStrava.athlete.expires_in = athleteStrava.expires_in;
       athleteStrava.athlete.refresh_token = athleteStrava.refresh_token;
       db.saveAthlete(payloadAthlete(athleteStrava.athlete))
         .then((data) => {
+          res.cookie('accessToken', accessToken, { maxAge: 6*3600000, httpOnly: true});
           res.redirect(`http://localhost:${uiPORT}/leaderboard`);
         })
         .catch(() => {
-          //figure out error sending
-          //res.err()
         });
-      //res.send(``)
-      //res.sendFile(path.join(__dirname, '../app/build/index.html'));
     })
     .catch((err) => {
       console.log(err.message);
     });
 });
 
-app.get("/api/getAccessToken", (req, res) => {
-  if (accessToken === "") {
-    res.status(404).json({
-      success: "fail",
-    });
-  } else {
-    res.json({
-      success: "ok",
-      data: {
-        accessToken: accessToken,
-      },
-    });
-  }
-});
-
-app.get("/api/refreshAccessToken", (req, res) => {
+app.get('/api/refreshAccessToken', (req, res) => {
   db.getAthletes().then((athletes) => {
     let promises = [];
     athletes.forEach((athlete) => {
@@ -93,9 +77,9 @@ app.get("/api/refreshAccessToken", (req, res) => {
           fetch(
             `https://www.strava.com/api/v3/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${athlete._doc.refreshToken}`,
             {
-              method: "POST",
+              method: 'POST',
               headers: {
-                accept: "application/json",
+                accept: 'application/json',
               },
             }
           ).then((response) => response.json())
@@ -104,6 +88,7 @@ app.get("/api/refreshAccessToken", (req, res) => {
     });
     Promise.allSettled(promises).then((response) => {
       promises = [];
+      //TODO setting accessToken
       response.forEach((tokenResult) => {
         if (tokenResult.value.errors === undefined) {
           tokenResult = tokenResult.value;
@@ -121,8 +106,9 @@ app.get("/api/refreshAccessToken", (req, res) => {
       });
       Promise.allSettled(promises)
         .then((results) => {
+          accessToken = accessToken === '' && results.length > 0? results[0]?.value?.access_token : accessToken;
           res.json({
-            success: "ok",
+            success: 'ok',
             data: results,
           });
         })
@@ -131,19 +117,35 @@ app.get("/api/refreshAccessToken", (req, res) => {
   });
 });
 
-app.get("/api/getAthletes", (req, res) => {
+app.get('/api/getClubDetails', (req,res) => {
+  const clubId = '675234';
+  fetch(
+    `https://www.strava.com/api/v3/clubs/${clubId}`,
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  ).then(response => response.json())
+  .then((response) => {
+    res.json({
+      success: 'ok',
+      data: response,
+    });
+  });
+})
+
+app.get('/api/getAthletes', (req, res) => {
   const query = req.query;
   if (Object.keys(query).length === 0) {
     db.getAthletes()
       .then((athlete) => {
         res.json({
-          success: "ok",
+          success: 'ok',
           data: athlete,
         });
       })
       .catch((err) => {
         res.json({
-          success: "fail",
+          success: 'fail',
           data: err,
         });
       });
@@ -151,41 +153,41 @@ app.get("/api/getAthletes", (req, res) => {
     db.getAthlete(query)
       .then((athlete) => {
         res.json({
-          success: "ok",
+          success: 'ok',
           data: athlete,
         });
       })
       .catch((err) => {
         res.json({
-          success: "fail",
+          success: 'fail',
           data: err,
         });
       });
   }
 });
 
-app.post("/api/athlete", (req, res) => {
+app.post('/api/athlete', (req, res) => {
   db.saveAthlete(payloadAthlete(req.body))
     .then((athlete) => {
       res.json({
-        success: "ok",
+        success: 'ok',
         data: athlete,
       });
     })
     .catch((err) => {
       res.json({
-        success: "fail",
+        success: 'fail',
         data: err,
       });
     });
 });
 
-app.get("/api/activities", (req, res) => {
+app.get('/api/activities', (req, res) => {
   db.getAthletes().then((athletes) => {
     let promises = [];
     athletes.forEach((athlete) => {
       promises.push(
-        fetch("https://www.strava.com/api/v3/athlete/activities", {
+        fetch('https://www.strava.com/api/v3/athlete/activities', {
           headers: { Authorization: `Bearer ${athlete._doc.accessToken}` },
         }).then((response) => response.json())
       );
@@ -199,7 +201,7 @@ app.get("/api/activities", (req, res) => {
           }
         });
         res.json({
-          success: "ok",
+          success: 'ok',
           data: results,
         });
       })
@@ -210,7 +212,7 @@ app.get("/api/activities", (req, res) => {
 const payloadAthlete = (athlete) => {
   return {
     athleteId: athlete.id,
-    name: athlete.firstname + " " + athlete.lastname,
+    name: athlete.firstname + ' ' + athlete.lastname,
     accessToken: athlete.access_token,
     expiresAt: athlete.expires_at,
     expiresIn: athlete.expires_in,
