@@ -109,7 +109,8 @@ export default {
       return await response.json();
     },
     async getAccessTokenFromCookie() {
-      return await document.cookie.split(';').find(row => row.trim().startsWith('accessToken')).split('=')[1];
+      const token = document.cookie.split('; ').find(row => row.startsWith('accessToken'))
+      return await token ? token.split('=')[1] : '';
     },
     async getAthlete() {
       const response = await fetch('https://www.strava.com/api/v3/athlete', {

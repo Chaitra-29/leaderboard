@@ -57,7 +57,8 @@ app.get('/api/exchange_token', (req, res) => {
       athleteStrava.athlete.refresh_token = athleteStrava.refresh_token;
       db.saveAthlete(payloadAthlete(athleteStrava.athlete))
         .then((data) => {
-          res.cookie('accessToken', accessToken, { maxAge: 6*3600000, httpOnly: true});
+          res.clearCookie();
+          res.cookie('accessToken', accessToken, { maxAge: 6*3600000});
           res.redirect(`http://localhost:${uiPORT}/leaderboard`);
         })
         .catch(() => {
