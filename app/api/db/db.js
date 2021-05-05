@@ -31,7 +31,11 @@ class Database {
         ) {
           return this.updateAthlete(
             { athleteId: athleteDetails.athleteId },
-            { accessToken: athleteDetails.accessToken }
+            { accessToken: athleteDetails.accessToken,
+              expiresAt: athleteDetails.expiresAt,
+              expiresIn: athleteDetails.expiresIn,
+              refreshToken: athleteDetails.refreshToken
+            }
           ).then(() => {
             return athleteDetails;
           });

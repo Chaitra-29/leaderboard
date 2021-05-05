@@ -46,12 +46,13 @@
 <script>
 import moment from 'moment';
 import brandImage from '../../public/cyclingmonks.jpg'
+import userIcon from '../../public/userIcon.png'
 export default {
   data() {
     return {
       clubId: '675234',
       headers: {},
-      athleteImage: '',
+      athleteImage: userIcon,
       athleteName: '',
       brandName: 'CyclingMonks',
       brandImage: brandImage,
@@ -64,10 +65,17 @@ export default {
       .then(() => {
         this.getAccessTokenFromCookie().then((accessToken) => {
           this.headers = { Authorization: `Bearer ${accessToken}` };
+          if(accessToken === ''){
+              this.$router.replace('/')
+          }
           this.getAthlete().then((response) => {
-            console.log('athlete--->', response);
-            this.athleteName = response.firstname;
-            this.athleteImage = response.profile_medium;
+              if(response.errors){
+                this.$router.replace('/')
+              }else{
+                console.log('athlete--->', response);
+                this.athleteName = response.firstname;
+                this.athleteImage = response.profile_medium;
+              }
           });
           //     console.log('athActivities--->', this.activities);
           // const athleteActivities = response.filter( activity => activity.type === this.activityType );
