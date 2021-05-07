@@ -45,8 +45,9 @@
 </style>
 <script>
 import moment from 'moment';
-import brandImage from '../../public/cyclingmonks.jpg'
-import userIcon from '../../public/userIcon.png'
+import { utilities } from './../utilities';
+import brandImage from '../../public/cyclingmonks.jpg';
+import userIcon from '../../public/userIcon.png';
 export default {
   data() {
     return {
@@ -61,45 +62,29 @@ export default {
     };
   },
   beforeMount: function() {
-    this.refreshAccessToken()
-      .then(() => {
-        this.getAccessTokenFromCookie().then((accessToken) => {
-          this.headers = { Authorization: `Bearer ${accessToken}` };
-          if(accessToken === ''){
-              this.$router.replace('/')
+    this.refreshAccessTokens().then(() => {
+      let accessToken = utilities.getAccessTokenFromCookie();
+      if (accessToken === '') {
+        this.$router.replace('/');
+      } else {
+        this.headers = { Authorization: `Bearer ${accessToken}` };
+        this.getAthlete().then((response) => {
+          if (response.errors) {
+            this.refreshAccessToken().then((athlete) =>{
+                this.setAthleteDetails(athlete);
+            });
+          } else {
+            this.setAthleteDetails(response);
           }
-          this.getAthlete().then((response) => {
-              if(response.errors){
-                this.$router.replace('/')
-              }else{
-                console.log('athlete--->', response);
-                this.athleteName = response.firstname;
-                this.athleteImage = response.profile_medium;
-              }
-          });
-          //     console.log('athActivities--->', this.activities);
-          // const athleteActivities = response.filter( activity => activity.type === this.activityType );
-          // athlete.rides = athleteActivities.length;
-
-          // athlete.longestDistance = athleteActivities.sort((a, b) => a - b);
-          // console.log('athActivities--->', this.athleteActivities);
-          // //this.athleteActivities
-          // athlete.distance = athleteActivities.reduce((accumulator, currentValue) => {
-          //     currentValue = parseFloat((currentValue.distance / 1000).toFixed(2));
-          //     accumulator + currentValue;
-          // });
         });
-        this.formatActivities();
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-    //}
+      }
+      this.formatActivities();
+    });
   },
   methods: {
-    async refreshAccessToken() {
+    async refreshAccessTokens() {
       const response = await fetch(
-        'http://localhost:3000/api/refreshAccessToken',
+        'http://localhost:3000/api/refreshAccessTokens',
         {
           headers: {
             accept: 'application/json',
@@ -108,10 +93,7 @@ export default {
       );
       return await response.json();
     },
-    async getAccessTokenFromCookie() {
-      const token = document.cookie.split('; ').find(row => row.startsWith('accessToken'))
-      return await token ? token.split('=')[1] : '';
-    },
+
     async getAthlete() {
       const response = await fetch('https://www.strava.com/api/v3/athlete', {
         headers: this.headers,
@@ -123,7 +105,7 @@ export default {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
-          'accept': 'application/json',
+          accept: 'application/json',
         },
         body: JSON.stringify(athlete),
       });
@@ -135,6 +117,25 @@ export default {
         headers: this.headers,
       });
       return await response.json();
+    },
+
+    async refreshAccessToken(accessToken) {
+      let response = await fetch('http://localhost:3000/api/athlete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+          accept: 'application/json',
+        },
+        body: JSON.stringify({accessToken}),
+      });
+      return await response.json();
+    
+    },
+
+    setAthleteDetails(athlete){
+        console.log('athlete--->', athlete);
+        this.athleteName = athlete.firstname;
+        this.athleteImage = athlete.profile_medium;
     },
 
     formatActivities() {

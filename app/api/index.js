@@ -58,7 +58,7 @@ app.get('/api/exchange_token', (req, res) => {
       db.saveAthlete(payloadAthlete(athleteStrava.athlete))
         .then((data) => {
           res.clearCookie();
-          res.cookie('accessToken', accessToken, { maxAge: 6*3600000});
+          res.cookie('accessToken', accessToken,{ maxAge: 6*3600000});
           res.redirect(`http://localhost:${uiPORT}/leaderboard`);
         })
         .catch(() => {
@@ -69,21 +69,44 @@ app.get('/api/exchange_token', (req, res) => {
     });
 });
 
-app.get('/api/refreshAccessToken', (req, res) => {
+app.post('/api/refreshAccessToken', (req,res) => {
+  db.getAthletes(req.body).then((athlete) => {
+    this.refreshToken(athlete._doc.refreshToken).then((athleteStravaData) =>{
+      db.updateAthlete(
+        { refreshToken: athleteStravaData.refresh_token },
+        {
+          accessToken: athleteStravaData.access_token,
+          expiresAt: athleteStravaData.expires_at,
+          expiresIn: athleteStravaData.expires_in,
+        }
+      ).then((result)=>{
+        res.cookie('accessToken', result.accessToken,{ maxAge: 6*3600000});
+        res.json({
+          success: 'ok',
+          data: athlete,
+        });
+      })
+    })
+  });
+});
+const refreshToken = (refreshToken) => {
+  return fetch(
+    `https://www.strava.com/api/v3/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${refreshToken}`,
+    {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+      },
+    }
+  ).then((response) => response.json())
+};
+app.get('/api/refreshAccessTokens', (req, res) => {
   db.getAthletes().then((athletes) => {
     let promises = [];
     athletes.forEach((athlete) => {
       if (moment().isAfter(moment.unix(athlete._doc.expiresAt))) {
         promises.push(
-          fetch(
-            `https://www.strava.com/api/v3/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${athlete._doc.refreshToken}`,
-            {
-              method: 'POST',
-              headers: {
-                accept: 'application/json',
-              },
-            }
-          ).then((response) => response.json())
+          this.refreshToken(athlete._doc.refreshToken)
         );
       }
     });
