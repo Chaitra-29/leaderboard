@@ -17,15 +17,6 @@ app.use(express.static(path.join(__dirname, '../dist')));
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3000;
@@ -56,7 +47,7 @@ app.get('/api/exchange_token', (req, res) => {
       athleteStrava.athlete.expires_in = athleteStrava.expires_in;
       athleteStrava.athlete.refresh_token = athleteStrava.refresh_token;
       db.saveAthlete(payloadAthlete(athleteStrava.athlete))
-        .then((data) => {
+        .then(() => {
           res.clearCookie();
           res.cookie('accessToken', accessToken,{ maxAge: 6*3600000});
           res.redirect(`http://localhost:${uiPORT}/leaderboard`);
@@ -89,9 +80,9 @@ app.post('/api/refreshAccessToken', (req,res) => {
     })
   });
 });
-const refreshToken = (refreshToken) => {
+const refreshToken = (token) => {
   return fetch(
-    `https://www.strava.com/api/v3/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${refreshToken}`,
+    `https://www.strava.com/api/v3/oauth/token?client_id=${clientID}&client_secret=${clientSecret}&grant_type=refresh_token&refresh_token=${token}`,
     {
       method: 'POST',
       headers: {
