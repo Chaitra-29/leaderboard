@@ -1,6 +1,4 @@
 const mongoose = require("mongoose");
-const os = require('os');
-const dbURL = os.hostname().indexOf("local") > -1 ? "mongodb://localhost:27017/cyclingmonks" : "mongodb+srv://chaitra:P@ssword1@cluster0.niq3x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" ;
 const AthleteModel = require("./Athlete");
 class Database {
   constructor() {
@@ -9,15 +7,17 @@ class Database {
 
   _connect() {
     mongoose.set("useFindAndModify", false);
+    const dbURL = process.env.NODE_ENV === 'localhost' ? "mongodb://localhost:27017/cyclingmonks" : "mongodb+srv://chaitra:P@ssword1@cluster0.niq3x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" ;
     mongoose
       .connect(dbURL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       })
       .then(() => {
+        console.log(dbURL);
         console.log("Database connection successful");
       })
-      .catch((err) => {
+      .catch(() => {
         console.error("Database connection error");
       });
   }

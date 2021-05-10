@@ -3,7 +3,6 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 var bodyParser = require('body-parser');
 const fetch = require('node-fetch');
-const path = require('path');
 const app = express();
 const db = require('./db/db');
 const moment = require('moment');
@@ -13,14 +12,13 @@ const uiPORT = '8080';
 const corsOptions = {
   origin: `http://localhost:${uiPORT}`,
 };
-app.use(express.static(path.join(__dirname, '../dist')));
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+app.listen(PORT,'127.0.0.1', () => {
   console.log(`Node.js app is listening at http://localhost:${PORT}`);
 });
 
