@@ -1,5 +1,6 @@
-var mongoose = require("mongoose");
-const dbURL = "mongodb://localhost:27017/cyclingmonks";
+const mongoose = require("mongoose");
+const os = require('os');
+const dbURL = os.hostname().indexOf("local") > -1 ? "mongodb://localhost:27017/cyclingmonks" : "mongodb+srv://chaitra:P@ssword1@cluster0.niq3x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" ;
 const AthleteModel = require("./Athlete");
 class Database {
   constructor() {

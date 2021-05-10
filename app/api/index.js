@@ -71,7 +71,7 @@ app.get('/api/exchange_token', (req, res) => {
 
 app.post('/api/refreshAccessToken', (req,res) => {
   db.getAthletes(req.body).then((athlete) => {
-    this.refreshToken(athlete._doc.refreshToken).then((athleteStravaData) =>{
+  refreshToken(athlete._doc.refreshToken).then((athleteStravaData) =>{
       db.updateAthlete(
         { refreshToken: athleteStravaData.refresh_token },
         {
@@ -106,7 +106,7 @@ app.get('/api/refreshAccessTokens', (req, res) => {
     athletes.forEach((athlete) => {
       if (moment().isAfter(moment.unix(athlete._doc.expiresAt))) {
         promises.push(
-          this.refreshToken(athlete._doc.refreshToken)
+          refreshToken(athlete._doc.refreshToken)
         );
       }
     });
