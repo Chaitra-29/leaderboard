@@ -1,8 +1,8 @@
 <template>
-  <div class='connect-button'>
+  <div class="connect-button">
     <!-- <router-link to='/leaderboard'> -->
 
-    <button type='button' class='btn btn-secondary' @click='signIn()'>
+    <button type="button" class="btn btn-secondary" @click="signIn()">
       Connect with Strava
     </button>
     <!-- <h2>{{ msg }}</h2> -->
@@ -17,17 +17,18 @@
 }
 </style>
 <script>
-import { utilities } from './../utilities';
+import { utilities } from "./../common/utilities";
 export default {
   methods: {
     signIn() {
       const accessToken = utilities.getAccessTokenFromCookie();
-      if (accessToken === '') {
+      if (accessToken === "") {
         window.open(
-          'http://www.strava.com/oauth/authorize?client_id= 54287&response_type=code&redirect_uri=http://localhost:3000/api/exchange_token&approval_prompt=force&scope=activity:read_all;profile:read_all'
-        ,'_self');
+          "http://www.strava.com/oauth/authorize?client_id= 54287&response_type=code&redirect_uri=http://localhost:3000/api/exchange_token&approval_prompt=force&scope=activity:read_all;profile:read_all",
+          "_self"
+        );
       } else {
-        this.$router.replace('/leaderboard');
+        this.$router.replace("/leaderboard");
       }
     },
   },

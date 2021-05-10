@@ -45,9 +45,9 @@
 </style>
 <script>
 import moment from "moment";
-import { utilities } from "./../utilities";
+import { utilities } from "./../common/utilities";
 import brandImage from "../../public/cyclingmonks.jpg";
-import userIcon from "../../public/userIcon.png";
+import userIcon from "../assets/userIcon.png";
 export default {
   data() {
     return {
