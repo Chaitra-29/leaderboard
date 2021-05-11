@@ -12,11 +12,12 @@ const router = new VueRouter({
   mode: 'history',
   routes:[
     {
-      path:"/",
-      component: SignIn
-    },{
       path:"/leaderboard",
       component: Leaderboard
+    },
+    {
+      path:"/",
+      component: SignIn
     }
   ]
 });
