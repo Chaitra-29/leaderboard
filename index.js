@@ -12,13 +12,8 @@ app.use(history({
     // OPTIONAL: Includes more verbose logging
     verbose: true
 }))
-
 // Serve static assets from the build files (images, etc)
 app.use(serveStatic(path.join(__dirname, '/build')))
-
-app.get('*',(req, res) => {
-    res.sendFile(path.join(__dirname, '/build'));
-});
 var port = process.env.PORT || 5000
 
 app.listen(port, () => {
