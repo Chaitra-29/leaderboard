@@ -23,8 +23,9 @@ export default {
     signIn() {
       const accessToken = utilities.getAccessTokenFromCookie();
       if (accessToken === "") {
+        
         window.open(
-          "http://www.strava.com/oauth/authorize?client_id= 54287&response_type=code&redirect_uri=http://localhost:3000/api/exchange_token&approval_prompt=force&scope=activity:read_all;profile:read_all",
+          `http://www.strava.com/oauth/authorize?client_id= 54287&response_type=code&redirect_uri=${utilities.getDomain()}/api/exchange_token&approval_prompt=force&scope=activity:read_all;profile:read_all`,
           "_self"
         );
       } else {

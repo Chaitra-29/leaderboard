@@ -59,7 +59,7 @@ export default {
       brandImage: brandImage,
       activities: [],
       activityType: 'Ride',
-      domain: window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://hidden-island-62961.herokuapp.com/'
+      domain: utilities.getDomain()
     };
   },
   beforeMount: function() {
