@@ -17,20 +17,21 @@
 }
 </style>
 <script>
-import { utilities } from "./../common/utilities";
+//import { utilities } from "./../common/utilities";
 export default {
   methods: {
     signIn() {
-      const accessToken = utilities.getAccessTokenFromCookie();
-      if (accessToken === "") {
+      //const accessToken = utilities.getAccessTokenFromCookie();
+      // if (accessToken === "") {
         
-        window.open(
-          `http://www.strava.com/oauth/authorize?client_id= 54287&response_type=code&redirect_uri=${utilities.getDomain()}/api/exchange_token&approval_prompt=force&scope=activity:read_all;profile:read_all`,
-          "_self"
-        );
-      } else {
-        this.$router.replace("/leaderboard");
-      }
+      //   window.open(
+      //     `http://www.strava.com/oauth/authorize?client_id= 54287&response_type=code&redirect_uri=${utilities.getDomain()}/api/exchange_token&approval_prompt=force&scope=activity:read_all;profile:read_all`,
+      //     "_self"
+      //   );
+      // } else {
+      //   this.$router.replace("/leaderboard");
+      // }
+      this.$router.replace("/leaderboard");
     },
   },
 };
