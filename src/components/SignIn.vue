@@ -29,7 +29,6 @@ export default {
       } else {
         this.$router.replace("/route/leaderboard");
       }
-      //this.$router.replace("/leaderboard");
     },
   },
 };

@@ -74,7 +74,7 @@ export default {
             this.setAthleteDetails(athlete);
           });
         } else {
-          this.setAthleteDetails(response);
+          this.setAthleteDetails(response.data);
         }
         this.refreshAccessTokens().then(() => {
           this.formatActivities();
@@ -96,8 +96,10 @@ export default {
     },
 
     async getAthlete() {
-      const response = await fetch('https://www.strava.com/api/v3/athlete', {
+      const response = await fetch(`${this.domain}/api/getAthleteStrava`, {
+      //const response = await fetch('https://www.strava.com/api/v3/athlete', {
         headers: this.headers,
+        credentials: 'include'
       });
       return await response.json();
     },
