@@ -64,9 +64,9 @@ export default {
   },
   beforeMount: function() {
     let accessToken = utilities.getAccessTokenFromCookie();
-    if (accessToken === '') {
-      this.$router.replace('/');
-    } else {
+    // if (accessToken === '') {
+    //   this.$router.replace('/');
+    // } else {
       this.headers = { Authorization: `Bearer ${accessToken}` };
       this.getAthlete().then((response) => {
         if (response.errors) {
@@ -80,7 +80,7 @@ export default {
           this.formatActivities();
         });
       });
-    }
+    //}
   },
   methods: {
     async refreshAccessTokens() {

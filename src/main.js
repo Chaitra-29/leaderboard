@@ -12,7 +12,7 @@ const router = new VueRouter({
   mode: 'history',
   routes:[
     {
-      path:"/leaderboard",
+      path:"/route/leaderboard",
       component: Leaderboard
     },
     {

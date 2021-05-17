@@ -1,6 +1,6 @@
 <template>
   <div class="connect-button">
-    <router-link to='/leaderboard'>
+    <router-link to='/route/leaderboard'>
      <button type="button" class="btn btn-secondary">
     <!-- <button type="button" class="btn btn-secondary" @click="signIn()"> -->
       Connect with Strava
