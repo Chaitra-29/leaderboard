@@ -1,12 +1,12 @@
 <template>
   <div class="connect-button">
-    <!-- <router-link to='/leaderboard'> -->
-
-    <button type="button" class="btn btn-secondary" @click="signIn()">
+    <router-link to='/leaderboard'>
+     <button type="button" class="btn btn-secondary">
+    <!-- <button type="button" class="btn btn-secondary" @click="signIn()"> -->
       Connect with Strava
     </button>
     <!-- <h2>{{ msg }}</h2> -->
-    <!-- </router-link> -->
+    </router-link>
   </div>
 </template>
 <style>
@@ -31,7 +31,7 @@ export default {
       // } else {
       //   this.$router.replace("/leaderboard");
       // }
-      this.$router.replace("/leaderboard");
+      //this.$router.replace("/leaderboard");
     },
   },
 };
